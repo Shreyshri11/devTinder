@@ -1,34 +1,33 @@
 const express = require('express');
 //create a new application of express
-
+const connectDB = require("./config/database.js");//tOG5sxRoPa1DIrZ8
 const app = express();
+const User = require("./models/user.js")
 
-const { adminAuth, userAuth } = require("./middlewares/auth")
-// this is an instance of express JS application
-// you had a new web server
+app.post("/signup", async (req, res) => {
+    // creating an instance of usermodel
+    const user = new User({
+        firstName: "Virat",
+        lastName: "Kohli",
+        emailId: "virat18@gmail.com",
+        password: "Virat123@"
+    });
 
-//request handler
-
-//this will only handle GET call /user
-
-//i can rewrite this authorization beautifully using middleware
-
-//handle auth middleware for all requests
-app.use("/admin", adminAuth);
-app.use("/user", userAuth);
-
-app.get("/user", userAuth, (req, res) => {
-    res.send("all data sent");
+    try {
+        await user.save();// this data will saved on the database
+        res.send("user added successfully");
+    } catch (err) {
+        res.status(400).send("Error saving the user" + err.message) ;
+    }
 });
 
-app.get("/admin/getAllData", (req, res) => {
-    res.send("all data sent");
-});
-
-app.get("/admin/deleteUser", (req, res) => {
-    res.send("deleted a user");
-});
-
-app.listen(3001, () => {
-    console.log("Server is successfully listening on port 3001....");
-});
+connectDB()
+    .then(() => {
+        console.log("database connection is successful...");
+        app.listen(3001, () => {
+            console.log("Server is successfully listening on port 3001....");
+        });
+    })
+    .catch(err => {
+        console.log("Database cannot be connected!!");
+    })
